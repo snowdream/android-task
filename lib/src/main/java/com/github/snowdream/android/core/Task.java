@@ -16,12 +16,80 @@
 
 package com.github.snowdream.android.core;
 
-/**
- * Created by snowdream on 11/17/13.
- */
-public class Task {
+import com.github.snowdream.android.util.Log;
 
-    public static String getHelloWorld(){
-        return "Hello World From Task!";
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+/**
+ * Created by snowdream on 3/11/14.
+ */
+public class Task<Input,Progress,Output> {
+
+    private final boolean enableLog;
+    private final List<Task> tasks;
+
+    private Task(Builder<Input,Progress,Output> builder) {
+        this.enableLog = builder.enableLog;
+        this.tasks = builder.tasks;
+    }
+
+    /**
+     * Whether to write logs for all tasks.
+     * if not set,true is the default.
+     */
+    public static void enableGlobalLog(boolean enableGlobalLog) {
+        Log.setEnabled(enableGlobalLog);
+    }
+
+    /**
+     * Check Whether to write logs for all tasks.
+     */
+    public static boolean isEnableGlobalLog() {
+       return Log.isEnabled();
+    }
+
+    /**
+     * Check Whether to write logs for this tasks.
+     */
+    public boolean isEnableLog() {
+        return enableLog;
+    }
+
+    public static class Builder<Input,Progress,Output> {
+        private boolean enableLog = true;
+        private List<Task> tasks = null;
+
+        /**
+         * Whether to write logs for this Task
+         * if not set,true is the default.
+         */
+        public Builder enableLog(boolean enableLog) {
+            this.enableLog = enableLog;
+            return this;
+        }
+
+        /**
+         * Add child task for this task.
+         *
+         * @param task
+         * @return
+         */
+        public Builder addChild(Task task){
+            if (tasks == null){
+                tasks = new CopyOnWriteArrayList<Task>();
+            }
+
+            tasks.add(task);
+            return this;
+        }
+
+
+        /**
+         * Builds configured {@link Task} object
+         */
+        public Task build() {
+            return new Task(this);
+        }
     }
 }

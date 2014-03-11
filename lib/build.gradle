@@ -19,7 +19,16 @@ apply plugin: 'idea'
 apply from: '../config/android-library.gradle'
 apply from: '../config/maven_push.gradle'
 
+android {
+    defaultConfig {
+        testPackageName "com.github.snowdream.android.core"
+        testInstrumentationRunner "android.test.InstrumentationTestRunner"
+        testFunctionalTest true
+    }
+}
 dependencies {
-    compile 'com.android.support:appcompat-v7:+'
+    compile 'de.greenrobot:eventbus:2.2.0'
+    compile 'com.google.code.gson:gson:2.2.4'
+    compile 'com.github.snowdream.android.util:log:1.0.4'
 }
 
