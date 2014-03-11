@@ -24,14 +24,24 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Created by snowdream on 3/11/14.
  */
-public class Task<Input,Progress,Output> {
+public class Task<Input, Progress, Output> {
 
     private final boolean enableLog;
     private final List<Task> tasks;
+    private final boolean isBottom;
+    private Task parent = null;
 
-    private Task(Builder<Input,Progress,Output> builder) {
+    private Task() {
+        enableLog = true;
+        tasks = null;
+        isBottom = true;
+        parent = null;
+    }
+
+    private Task(Builder<Input, Progress, Output> builder) {
         this.enableLog = builder.enableLog;
         this.tasks = builder.tasks;
+        this.isBottom = builder.isBottom;
     }
 
     /**
@@ -46,7 +56,7 @@ public class Task<Input,Progress,Output> {
      * Check Whether to write logs for all tasks.
      */
     public static boolean isEnableGlobalLog() {
-       return Log.isEnabled();
+        return Log.isEnabled();
     }
 
     /**
@@ -56,9 +66,50 @@ public class Task<Input,Progress,Output> {
         return enableLog;
     }
 
-    public static class Builder<Input,Progress,Output> {
+
+    /**
+     * set the parent task
+     *
+     * @param task
+     */
+    private void setParent(Task task) {
+        if (task != null) {
+            this.parent = task;
+        }
+    }
+
+    /**
+     * get the parent task
+     *
+     * @param task
+     * @return
+     */
+    public Task getParent(Task task) {
+        return this.parent;
+    }
+
+    /**
+     * Whether the task is on the Top.
+     *
+     * @return
+     */
+    public boolean isTop() {
+        return parent == null;
+    }
+
+    /**
+     * Whether the task is on the Bottom.
+     *
+     * @return
+     */
+    public boolean isBottom() {
+        return isBottom;
+    }
+
+    public static class Builder<Input, Progress, Output> {
         private boolean enableLog = true;
         private List<Task> tasks = null;
+        private boolean isBottom = true;
 
         /**
          * Whether to write logs for this Task
@@ -75,21 +126,36 @@ public class Task<Input,Progress,Output> {
          * @param task
          * @return
          */
-        public Builder addChild(Task task){
-            if (tasks == null){
+        public Builder addChild(Task task) {
+            if (tasks == null) {
                 tasks = new CopyOnWriteArrayList<Task>();
             }
 
-            tasks.add(task);
+            if (task != null) {
+                tasks.add(task);
+            }
             return this;
         }
-
 
         /**
          * Builds configured {@link Task} object
          */
         public Task build() {
-            return new Task(this);
+            Task task = new Task(this);
+
+            checkChildTasks(task);
+            return task;
+        }
+
+        private void checkChildTasks(Task parent) {
+            if (tasks == null) {
+                isBottom = false;
+                return;
+            }
+
+            for (Task task : tasks) {
+                task.setParent(parent);
+            }
         }
     }
 }

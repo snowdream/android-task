@@ -4,21 +4,21 @@ package com.github.snowdream.android.core;
  * Created by snowdream on 3/11/14.
  */
 public class TaskListener<Progress, Output> {
-    public void onStart() {
+    public void onStart(Task task) {
     }
 
-    public void onProgressUpdate(Progress progress) {
+    public void onProgressUpdate(Task task, Progress progress) {
     }
 
-    public void onSuccess(Output output) {
+    public void onSuccess(Task task, Output output) {
     }
 
-    public void onCancelled() {
+    public void onCancelled(Task task) {
     }
 
-    public void onError(Throwable thr) {
+    public void onError(Task task, Throwable thr) {
     }
 
-    public void onFinish() {
+    public void onFinish(Task task) {
     }
 }
