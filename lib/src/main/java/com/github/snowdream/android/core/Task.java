@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.github.snowdream.android.helloworld;
+package com.github.snowdream.android.core;
 
 /**
  * Created by snowdream on 11/17/13.
  */
-public class HelloWorldLib {
+public class Task {
 
     public static String getHelloWorld(){
-        return "Hello World From HelloWorldLib!";
+        return "Hello World From Task!";
     }
 }
