@@ -19,9 +19,11 @@ package com.github.snowdream.android.core;
 import android.annotation.TargetApi;
 import android.os.Build;
 import com.github.snowdream.android.util.Log;
+import de.greenrobot.event.EventBus;
 
 import java.util.ArrayDeque;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -91,14 +93,22 @@ public class Task<Input, Progress, Output> {
 
     /**
      * Default Executor
+     *
      * @param exec
      */
     public static void setDefaultExecutor(Executor exec) {
         sDefaultExecutor = exec;
     }
 
+    public static final EventBus DEFAULT_EVENTBUS = EventBus.getDefault();
+
+    public static final EventBus NEW_EVENTBUS = new EventBus();
+
+    private static volatile EventBus eventBus = NEW_EVENTBUS;
+
     private final boolean enableLog;
     private final List<Task> tasks;
+    private Set<TaskListener> listeners;
     private final boolean isBottom;
     private Task parent = null;
 
@@ -113,6 +123,8 @@ public class Task<Input, Progress, Output> {
         this.enableLog = builder.enableLog;
         this.tasks = builder.tasks;
         this.isBottom = builder.isBottom;
+        this.listeners = builder.listeners;
+        registerListeners();
     }
 
     /**
@@ -137,6 +149,57 @@ public class Task<Input, Progress, Output> {
         return enableLog;
     }
 
+    /**
+     * Add TaskListener
+     *
+     * @param listener
+     * @return
+     */
+    public void addListener(TaskListener listener) {
+        if (listeners == null) {
+            listeners = new CopyOnWriteArraySet<TaskListener>();
+        }
+
+        if (listener != null) {
+            listeners.add(listener);
+        }
+
+        registerListeners();
+    }
+
+    /**
+     * Register all task listeners.
+     */
+    private void registerListeners(){
+        if (listeners == null){
+            Log.i("There is no Listener to register.");
+            return;
+        }
+
+        for (TaskListener listener : listeners){
+            if (eventBus.isRegistered(listener)){
+                continue;
+            }
+
+            eventBus.register(listener);
+        }
+    }
+
+    /**
+     * Unregister all task listeners.
+     */
+    private void unregisterListeners(){
+        if (listeners == null){
+            Log.i("There is no Listener to unregister.");
+            return;
+        }
+
+        for (TaskListener listener : listeners){
+            if (eventBus.isRegistered(listener)){
+                eventBus.register(listener);
+            }
+        }
+    }
 
     /**
      * set the parent task
@@ -181,6 +244,7 @@ public class Task<Input, Progress, Output> {
         private boolean enableLog = true;
         private List<Task> tasks = null;
         private boolean isBottom = true;
+        private Set<TaskListener> listeners = null;
 
         /**
          * Whether to write logs for this Task
@@ -204,6 +268,23 @@ public class Task<Input, Progress, Output> {
 
             if (task != null) {
                 tasks.add(task);
+            }
+            return this;
+        }
+
+        /**
+         * Add TaskListener
+         *
+         * @param listener
+         * @return
+         */
+        public Builder addListener(TaskListener listener) {
+            if (listeners == null) {
+                listeners = new CopyOnWriteArraySet<TaskListener>();
+            }
+
+            if (listener != null) {
+                listeners.add(listener);
             }
             return this;
         }
