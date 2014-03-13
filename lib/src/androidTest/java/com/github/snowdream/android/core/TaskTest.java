@@ -40,6 +40,12 @@ public class TaskTest extends TestCase {
         Task taskA = builder.addChild(taskB).addChild(taskc).build();
 
         assertEquals(true,taskA.isTop());
-        assertEquals(true,taskc.isBottom());
+        assertEquals(false,taskA.isBottom());
+        assertEquals(false,taskB.isTop());
+        assertEquals(false,taskB.isBottom());
+        assertEquals(false,taskd.isTop());
+        assertEquals(true,taskd.isBottom());
+        assertEquals(false,taskc.isTop());
+        //assertEquals(true,taskc.isBottom());
     }
 }

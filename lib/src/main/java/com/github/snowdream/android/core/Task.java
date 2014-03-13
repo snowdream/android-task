@@ -109,20 +109,17 @@ public class Task<Input, Progress, Output> {
     private final boolean enableLog;
     private final List<Task> tasks;
     private Set<TaskListener> listeners;
-    private final boolean isBottom;
     private Task parent = null;
 
     private Task() {
         enableLog = true;
         tasks = null;
-        isBottom = true;
         parent = null;
     }
 
     private Task(Builder<Input, Progress, Output> builder) {
         this.enableLog = builder.enableLog;
         this.tasks = builder.tasks;
-        this.isBottom = builder.isBottom;
         this.listeners = builder.listeners;
         registerListeners();
     }
@@ -237,13 +234,12 @@ public class Task<Input, Progress, Output> {
      * @return
      */
     public boolean isBottom() {
-        return isBottom;
+        return tasks == null;
     }
 
     public static class Builder<Input, Progress, Output> {
         private boolean enableLog = true;
         private List<Task> tasks = null;
-        private boolean isBottom = true;
         private Set<TaskListener> listeners = null;
 
         /**
@@ -301,7 +297,6 @@ public class Task<Input, Progress, Output> {
 
         private void checkChildTasks(Task parent) {
             if (tasks == null) {
-                isBottom = false;
                 return;
             }
 
