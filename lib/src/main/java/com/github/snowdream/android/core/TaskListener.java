@@ -1,5 +1,7 @@
 package com.github.snowdream.android.core;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * Created by snowdream on 3/11/14.
  */
@@ -189,6 +191,20 @@ public class TaskListener<Progress, Output> {
                 break;
             default:
                 break;
+        }
+    }
+
+    public void register(){
+        EventBus eventBus = Task.getEventBus();
+        if(!eventBus.isRegistered(this)) {
+            eventBus.register(this);
+        }
+    }
+
+    public void unregister(){
+        EventBus eventBus = Task.getEventBus();
+        if (eventBus.isRegistered(this)){
+            eventBus.unregister(this);
         }
     }
 }

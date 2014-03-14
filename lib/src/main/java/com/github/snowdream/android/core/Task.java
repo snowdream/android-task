@@ -108,7 +108,6 @@ public class Task<Input, Progress, Output> {
 
     private final boolean enableLog;
     private final List<Task> tasks;
-    private Set<TaskListener> listeners;
     private Task parent = null;
 
     private Task() {
@@ -120,8 +119,6 @@ public class Task<Input, Progress, Output> {
     private Task(Builder<Input, Progress, Output> builder) {
         this.enableLog = builder.enableLog;
         this.tasks = builder.tasks;
-        this.listeners = builder.listeners;
-        registerListeners();
     }
 
     /**
@@ -147,55 +144,12 @@ public class Task<Input, Progress, Output> {
     }
 
     /**
-     * Add TaskListener
+     * Get EventBus
      *
-     * @param listener
      * @return
      */
-    public void addListener(TaskListener listener) {
-        if (listeners == null) {
-            listeners = new CopyOnWriteArraySet<TaskListener>();
-        }
-
-        if (listener != null) {
-            listeners.add(listener);
-        }
-
-        registerListeners();
-    }
-
-    /**
-     * Register all task listeners.
-     */
-    private void registerListeners(){
-        if (listeners == null){
-            Log.i("There is no Listener to register.");
-            return;
-        }
-
-        for (TaskListener listener : listeners){
-            if (eventBus.isRegistered(listener)){
-                continue;
-            }
-
-            eventBus.register(listener);
-        }
-    }
-
-    /**
-     * Unregister all task listeners.
-     */
-    private void unregisterListeners(){
-        if (listeners == null){
-            Log.i("There is no Listener to unregister.");
-            return;
-        }
-
-        for (TaskListener listener : listeners){
-            if (eventBus.isRegistered(listener)){
-                eventBus.register(listener);
-            }
-        }
+    protected static EventBus getEventBus(){
+        return eventBus;
     }
 
     /**
